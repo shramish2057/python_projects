@@ -1,0 +1,206 @@
+{% extends 'game/navbar.html' %}
+
+{% block content %}
+
+<!-- Main content -->
+<div class="main-container">
+    <h2>Create Game</h2>
+    <p>Fill in the form and submit to create a game.</p>
+
+    <hr>
+
+    <div class="create-game-form form-container py-2">
+        <div class="card rounded-5 border-0 shadow">
+            <div class="card-body p-5">
+
+                <!-- Bootstrap Form -->
+                <form method="POST" action="{% url 'game:create_game' %}" id="gameForm">
+
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Number of weeks</label>
+                                {{form1.nr_rounds}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Delay</label>
+                                {{form1.info_delay}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Holding Cost</label>
+                                {{form1.holding_cost}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Backlog Cost</label>
+                                {{form1.backlog_cost}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Starting Inventory</label>
+                                {{form1.starting_inventory}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checkboxes row">
+                        <div class="col">
+                            <div class="form-outline">
+                                <div class="form-check">
+                                    <label class="form-label">{{form1.distributor_present}} Has Distributor </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <div class="form-check">
+                                    <label class="form-label">{{form1.wholesaler_present}} Has Wholesaler </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p><b>Important:</b> Please assign one role per player.</p>
+                    <div class="row">                        
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Factory</label>
+                                {{form2.factory}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Distributor</label>
+                                {{form2.distributor}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Wholesaler</label>
+                                {{form2.wholesaler}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Retailer</label>
+                                {{form2.retailer}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Error handling -->
+                    <!-- errors from the first form -->
+                    <div class="errorlist" style="color: red">
+                        {% for field, error in form1.errors.items %}
+                        {% if field != '__all__' %}{% endif %} 
+                        <br>
+                        {{ error | striptags }}
+                        <br>
+                        {% endfor %}
+                    </div>
+                    <!-- errors from the second form -->
+                    <div class="errorlist" style="color: red">
+                        {% for field, error in form2.errors.items %}
+                        {% if field != '__all__' %}{% endif %} 
+                        <br>
+                        {{ error | striptags }}
+                        <br>
+                        {% endfor %}
+                    </div>
+
+                    <!-- errors specified in the views -->
+                    <div class="errorlist" style="color: red">
+                        {% for message in messages %}
+                          <p id="messages">{{message}}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row" style="padding-top: 50px;">
+                        <div class="col">
+                            <a href="/" class="game-form-btn btn btn-primary btn-block" style="background-color: #ff625c; font-size: 18px;"><i class="nav-icons fas fa-ban"></i>Cancel</a>
+                        </div>
+
+                        <div class="col">
+                            <input type="submit" class="game-form-btn btn btn-primary btn-block" style="background-color: #6996ff; font-size: 18px; width: 150px;" value="+ Create"/>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Checks whether distributor or wholesaler are selected and disables/enables the selectors
+function check_distributor() {
+    var check1 = document.getElementById("id_distributor_present");
+    var sel1 = document.getElementById('id_distributor');
+    if (check1.checked) {
+        sel1.disabled = false;
+    }
+    else {
+        for(i = 0; i < sel1.options.length; i++){
+            if(sel1.options[i].text == "---------"){
+                sel1.selectedIndex = i;
+            }
+        }
+        sel1.disabled = true;
+    }
+} 
+
+function check_wholesaler() {
+    var check2 = document.getElementById('id_wholesaler_present');
+    var sel2 = document.getElementById('id_wholesaler');
+    if (check2.checked) {
+        sel2.disabled = false;
+    }
+    else {
+        for(i = 0; i < sel2.options.length; i++){
+            if(sel2.options[i].text == "---------"){
+                sel2.selectedIndex = i;
+            }
+        }
+        sel2.disabled = true;
+    }
+}
+
+// When a player is already selected, it becomes disabled in other selectors
+const selects = document.querySelectorAll('select');
+selects.forEach((elem) => {
+    elem.addEventListener('change', (event) => {
+        let values = Array.from(selects).map(select => select.value);
+        for (let select of selects) {
+            select.querySelectorAll('option').forEach((option) => {
+                let value = option.value;
+                if (value && value !== select.value && values.includes(value)) {
+                    option.disabled = true;
+                } else {
+                    option.disabled = false;
+                }
+            });
+        }
+    });
+});
+
+// Sets current link as active
+$('#create-link').addClass('active');
+</script>
+</script>
+
+{% endblock %}

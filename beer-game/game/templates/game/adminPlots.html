@@ -1,0 +1,86 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Beer Distribution Game</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+    <link rel="stylesheet" href="{% static 'game/game-view-style.css' %}" />
+</head>
+
+<body>
+    <div class="container-game-insights" style="padding: 20px;">
+        <h3 style="text-transform: uppercase;">Plots of Supply Chain in Game {{game_id}}</h3>
+        <h6>Inventory/Backorder/Order/Demand (Y-axis) and Week (X-axis)</h6>
+        <!-- Plot Selector -->
+        <div class="plot-selector-cont" style="">
+            <select class="form-select" id="plot-type" aria-label="Default select example" style="width: 200px;">
+                <option selected disabled="">Select Plot Type</option>
+                <optgroup label="Players">
+                    <option class="selector" value="1">Retailer</option>
+                    <option class="selector" value="2">Wholesaler</option>
+                    <option class="selector" value="3">Distributor</option>
+                    <option class="selector" value="4">Factory</option>
+                </optgroup>
+                <optgroup label="Supply Chain">
+                    <option class="selector" value="5">Inventory</option>
+                    <option class="selector" value="6">Demand</option>
+                    <option class="selector" value="7">Incoming Shipment</option>
+                    <option class="selector" value="8">Outgoing Shipment</option>
+                    <option class="selector" value="9">Order</option>
+                </optgroup>
+            </select>
+        </div>
+
+        <!-- Plots -->
+        <div class="game-plot" id="1">{{graph_retailer|safe}}</div>
+        <div class="game-plot" id="2">{{graph_wholesaler|safe}}</div>
+        <div class="game-plot" id="3">{{graph_distributor|safe}}</div>
+        <div class="game-plot" id="4">{{graph_factory|safe}}</div>
+        <div class="game-plot" id="5">{{graph_all_inventory|safe}}</div>
+        <div class="game-plot" id="6">{{graph_all_demand|safe}}</div>
+        <div class="game-plot" id="7">{{graph_all_incoming_shipment|safe}}</div>
+        <div class="game-plot" id="8">{{graph_all_outgoing_shipment|safe}}</div>
+        <div class="game-plot" id="9">{{graph_all_order|safe}}</div>
+
+        <div style="text-align: center; padding-top: 10px;">
+            <a href="{% url 'game:monitorGames' %}" id="back-btn"><i class="fas fa-sign-out-alt" style="transform: rotate(180deg); padding-left: 5px;"></i>Back to Monitor Games</a>
+        </div>
+    </div>
+
+    <!-- OPTIONAL -->
+    <!-- Add specific game data as well: weeks, backlog costs, demand pattern etc. to have an idea of the game settings -->
+    <!-- Include cost plots as well ?? -->
+    <!-- Maybe at a later point we can add more insights like average costs, rankings etc. -->
+
+<script>
+// Should be later on added to separate js file
+var plots = document.getElementsByClassName('game-plot');
+for (var i = 0; i < plots.length; i++) {
+    let test = plots[i].textContent;
+    if (test == 'False') {
+        plots[i].innerHTML = 'No plot to display';
+    }
+}
+
+// jQuery code to make plots appear and disappear when plot types are selected
+$(function() {
+    $('#plot-type').change(function(){
+        $('.game-plot').hide();
+        $('#' + $(this).val()).show();
+    });
+});
+</script>
+
+</body>
+</html>

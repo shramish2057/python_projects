@@ -1,0 +1,42 @@
+{% extends 'game/navbar.html' %}
+
+{% block content %}
+
+<!-- Main content -->
+<div class="main-container">
+    <h2>Account Settings</h2>
+    <p>Here you can change your password or delete your account.</p>
+
+    <hr>
+
+    <div class="form-container py-2">
+        <div class="card rounded-5 border-0 shadow">
+            <div class="card-body p-5">
+                <!-- Change Password  -->
+                <form action="" method="" style="padding-top: 10px;">
+                    <div class="col" style="width: 250px;">
+                        <div class="row" style="padding-bottom: 10px;">
+                            <input type="password" class="form-control" placeholder="Old Password">
+                        </div>
+                        <div class="row" style="padding-bottom: 10px;">
+                            <input type="password" class="form-control" placeholder="New Password">
+                        </div>
+                        <div class="row" style="padding-bottom: 10px;">
+                            <input type="password" class="form-control" placeholder="Re-Enter New Password">
+                        </div>
+                        <div class="row">
+                            <input type="submit" class="game-btn" style="background-color: #6996ff;" value="Change Password" />
+                        </div>
+                        
+                        <!-- Delete Account -->
+                        <div class="row" style="padding-top: 50px;">
+                            <input type="submit" class="game-btn" style="background-color: #ff625c;" value="Delete Account" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

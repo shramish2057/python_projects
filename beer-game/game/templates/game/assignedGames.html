@@ -1,0 +1,68 @@
+{% extends 'game/navbar.html' %}
+
+{% block content %}
+
+<!-- Main content -->
+<div class="main-container">
+    <h2>Assigned Games</h2>
+    <p>Here you can view and join all assigned games to you.</p>
+
+    <hr>
+
+    <div class="form-container py-2">
+        <div class="card rounded-5 border-0 shadow">
+            <div class="card-body p-5">
+                <!-- ASSIGNED GAMES -->
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Game ID</th>
+                                    <th>Current Week</th>
+                                    <th>Role Name</th>
+                                    <th>Active</th>
+                                    <th>Completed</th>
+                                    <th></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% if list_roles %}
+                                    {% for role in list_roles %}
+                                        {% for game in role.game_set.all%}
+                                            <tr>
+                                                <th scope="row">{{game.id}}</td>
+                                                <td >{{game.rounds_completed}}</td>
+                                                <td style="text-transform: uppercase;">{{role.role_name}}</td>
+                                                <td>{{ game.is_active }}</td>
+                                                <td>{{game.is_completed}}</td>
+                                                <td>
+                                                    <a href="{% url 'game:enterGame' role.id %}">{%if game.is_completed == False %}<i class="nav-icons fas fa-sign-in-alt"></i>Enter Game{%else%}<i class="nav-icons far fa-eye"></i>View Game{%endif%}</a></td>
+                                                </td>
+                                                <td>
+                                                {%if game.is_completed == True %}
+                                                    <a href="{% url 'game:gameInsights' game.id %}"><i class="nav-icons fas fa-chart-line"></i>View Insights</a></td>
+                                                {%endif%}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endfor %}
+                                {% else %}
+                                    <p>There are no games to display</p>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Sets current link as active
+$('#join-link').addClass('active');
+</script>
+
+{% endblock %}

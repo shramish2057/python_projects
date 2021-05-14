@@ -1,0 +1,215 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700;800&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body,
+input {
+  font-family: "Poppins", sans-serif !important;
+}
+
+body, html { height: 100%; margin: 0; padding: 0; }
+    
+#container-game-view { width: 100%; height: 100%; }
+
+.game-view-quadrant {
+  padding: 30px;
+  height: 100%;
+  overflow: auto;
+}
+
+.quadrant { 
+  width: 50%;
+  height: 50%;
+  float: left;
+  padding: 5px;
+  overflow: auto;
+}
+
+.table-input-screen {
+  border: 1px solid black;
+  width: 70%;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+td {
+  padding: 3px;
+  text-align: right;
+}
+
+td .value {
+  text-align: center;
+  column-width: 40px;
+}
+th {
+  font-weight: bold;
+}
+
+.table-input-screen tbody tr:hover {
+  background-color: white;
+}
+
+.table-weeks th, .table-weeks td {
+  border: 1px solid black;
+  text-align: center;
+  font-size: 12px;
+}
+
+#div1, #div2, #div3, #div4 {
+  text-align: center;
+}
+
+#demand {
+  border-right: 1px solid black; 
+  width: 35px; 
+  text-align: center; 
+  font-weight: bold; 
+}
+
+#inventory {
+  width: 35px; 
+  text-align: 
+  center; font-weight: bold;
+}
+
+#backlog {
+  border-right: 1px solid black; 
+  border-bottom: 1px solid grey; 
+  width: 35px; 
+  text-align: center; 
+  font-weight: bold; 
+  color: red;
+}
+
+#incoming_shipment {
+  border-bottom: 1px solid grey; 
+  width: 35px; 
+  text-align: center; 
+  font-weight: bold; 
+  color: green;
+}
+
+#total_requirements {
+  border-right: 1px solid black; 
+  width: 35px; 
+  text-align: center; 
+  font-weight: bold; 
+  color: blue;
+}
+
+#total_available {
+  width: 35px; 
+  text-align: center; 
+  font-weight: bold; 
+  color: blue;
+}
+
+.table-cont, .s1-details, .order-status, .order-is-placed, .all-orders-placed {
+  padding-top: 10px;
+}
+
+#order_placed {
+  width: 150px;
+}
+
+#table-weeks th {
+  background-color: #c2d6ff;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+
+#table-weeks tr:nth-child(odd) {
+  background: white;
+}
+
+#table-weeks tr:nth-child(even) {
+  background: #edf3ff;
+}
+
+h5 {
+  text-transform: uppercase;
+  text-align: center;
+  font-weight: 600;
+}
+
+.plot-buttons {
+  text-align: center;
+  padding: 10px;
+}
+
+#plot-btn {
+  background-color: #4785ff;
+  border: none;
+}
+
+#plot-btn {
+  background-color: #4785ff;
+  border: none;
+}
+
+#plot-btn:hover {
+  background-color: #246eff;
+  transition: 0.3s;
+}
+
+.settings-table tr {
+  line-height: 20px;
+}
+
+#val {
+  text-align: left;
+  font-weight: 600;
+  color: #113170;
+}
+
+.supply-chain-settings {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.status-table th, .status-table td  {
+  text-align: center;
+}
+
+.status-table {
+  width: 100%;
+  text-align: center;
+}
+
+.order-status {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+body .modal-dialog {
+  max-width: 100%;
+  width: auto !important;
+  display: inline-block;
+}
+
+/*GAME INSIGHTS*/
+.container-game-insights {
+  text-align: center !important;
+  height: 100vh;
+}
+
+.form-control {
+  width:50px;
+  display:inline-block;
+}
+
+.game-plot {
+  display: none;
+}
+
+.plot-selector-cont {
+  width: 280px; 
+  margin-left: auto; 
+  margin-right: auto; 
+  padding: 30px;
+}

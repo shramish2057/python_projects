@@ -1,0 +1,509 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Beer Distribution Game</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'game/game-view-style.css' %}" />
+</head>
+
+<body>
+    {%if game.is_active == True %}
+    <div id="container-game-view">
+        <!-- SCREEN 1 -->
+        <div id="div1" class="quadrant"> 
+            <div class="card game-view-quadrant rounded-5 border-0 shadow-lg">
+                <div style="text-align: left;">
+                    <a href="{% url 'game:join' %}" id="back-btn"><i class="fas fa-sign-out-alt" style="transform: rotate(180deg); padding-left: 5px;"></i>Back to Assigned Games</a>
+
+                    <i class="far fa-question-circle" id="info" style="float: right; opacity: 90%; cursor: pointer;" data-toggle="modal" data-target="#game-rules" data-toggle="tooltip" data-placement="bottom" title="Game Rules"></i>
+
+                    <!-- This is a modal with the Game Rules -->
+                    <div class="modal fade" id="game-rules" tabindex="-1" role="dialog" aria-labelledby="Inventory-Plot" aria-hidden="true" style="text-align: center;">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                            <div class="modal-content" style="max-width: 600px; padding: 20px;">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="Inventory-Plot">GAME RULES</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="rules" style="text-align: left;">
+                                        <h4>Game Diagram Example:</h4>
+                                        <img src="{% static 'game/img/bdg-diagram.png' %}" style="width: 100%;"></img><br>
+                                        Your objective is to keep your costs as low as possible. This is how the game works:
+                                        <ul>
+                                            <li>Each case of beer you have in stock costs <b>{{game.holding_cost}}</b> EUR per week</li>
+                                            <li>Each order that you cannot fill results in a ‘backlog’, and each case of beer on backlog costs <b>{{game.backlog_cost}}</b> EUR per week</li>
+                                            <li>The game will last <b>{{game.nr_rounds}}</b> weeks (rounds) – you must keep cumulative costs (all your weekly costs added together) as low as possible.</li>
+                                            <li>The supply chain consists of the retailer, the wholesaler, the distributor and the manufacturer.</li>
+                                            <li>Customers buy beer from the retailer, the retailer places orders with the wholesaler, the wholesaler places order with the distributor, and the distributor places orders with the manufacturer.</li>
+                                            <li>Orders take two weeks to be ‘received’ by the next upstream step (e.g. from the retailer to the wholesaler).</li>
+                                            <li>Deliveries move downstream (e.g. the distributor ships orders to the wholesaler). Deliveries take two weeks to arrive at the next downstream step.</li>
+                                            <li>Each week, you will place an order to the next upstream step. You will receive what you have ordered 4 weeks later (2 weeks for the next upstream step to receive the order and 2 more weeks for it to arrive at your location).</li>
+                                            <li>Each outgoing delivery reduces your stock by the number of cases of beer you ship.</li>
+                                            <li>Each incoming delivery increases your stock by the number of cases of beer you receive (i.e. the order you placed 4 weeks ago).</li>
+                                            <li>Each week, you must decide how much to order by changing the number on top and clicking on ‘Order’.</li>
+                                            <li>You will see on your screen how much you have in stock, how many cases of beer are on backlog (if any), your cumulative cost so far, the incoming order for that week, and how many cases of beer have just arrived – that is, your incoming delivery.</li>
+                                            <li>Use the above information to decide how many cases of beer to order each week.</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>        
+                </div>
+
+                <h5><span style="color: #214da3; font-weight: 700;">{{role.role_name}} - GAME {{game.id}} - WEEK {{current_week_role.number}}</span><br>INPUT SCREEN</h5>
+            {%if game.is_completed == False%}  
+                {%if completed == False %} 
+                    {% if current_week_role.order_placed == -1 %}
+                        <div class="table-cont">
+                            <table class="table-input-screen">
+                                <tr>
+                                    {% if downstream_role.role_name %}
+                                        <td>
+                                            Demand from {{downstream_role.role_name}}:
+                                        </td>
+                                    {% else %}
+                                        <td>
+                                            Demand from {{downstream_role}}:
+                                        </td>
+                                    {% endif %}
+                                    <td class="value" id="demand">
+                                        {{current_week_role.demand}}
+                                    </td>
+                                    <td>
+                                        Beginning Inventory:
+                                    </td>
+                                    <td class="value" id="inventory">
+                                        {{current_week_role.inventory}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="border-bottom: 1px solid grey;">
+                                        Backorder:
+                                    </td>
+                                    <td class="value" id="backlog">
+                                        {{current_week_role.backlog}}
+                                    </td>
+                                    <td style="border-bottom: 1px solid grey;">
+                                        Incoming Shipment:
+                                    </td>
+                                    <td class="value" id="incoming_shipment">
+                                        {{current_week_role.incoming_shipment}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        Total Requirements:
+                                    </td>
+                                    <td class="value" id="total_requirements">
+                                        {{total_requirements}}
+                                    </td>
+                                    <td>
+                                        Total Available:
+                                    </td>
+                                    <td class="value" id="total_available">
+                                        {{total_available}}
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                
+                       <!--  <div class="s1-details">
+                            Units Shipped to Retailer this week: {units} <br>
+                            Ending inventory: {{new_inventory}} <br>
+                        </div> -->
+                        
+                        <div class="my-3">Place your order: </div>
+                        <form action="{% url 'game:enterGame' role.id %}" method="post" class="form-inline justify-content-center">
+                            {% csrf_token %}
+                            <div class="form-group mx-sm-3 mb-2">
+                                <input type="number" name="order_placed" id="order_placed" class="form-control text-center">
+                            </div>
+                            <input type="submit" class="btn btn-primary mb-2"/>
+                        </form>
+
+                    {%else%}
+                    <div class="order-is-placed">
+                        Your order is: <b>{{current_week_role.order_placed}}</b> <br>
+                        Your shipment is: <b>{{current_week_role.outgoing_shipment}}</b><br>
+                        Inventory at week {{current_week_role.number}}: <b>{{current_week_role.inventory}}</b> <br>
+                        Current cost: <b>{{current_week_role.cost}}</b> <br>
+
+                        <p>Please wait until all orders have been placed to proceed to the next week.</p>
+                    </div>
+                    {%endif%}
+                {%else%}
+                <h3>Game completed for you! Wait for others to finish their round!</h3>
+                {%endif%}
+            {%else%}
+            <h1>Game completed!</h1>
+            To view game insights click on the button below:
+            <div class="col text-center" style="padding-top: 10px;">
+                <a href="{% url 'game:gameInsights' game.id %}" type="button" class="btn btn-secondary" style="width: 150px;">View Insights</a>
+            </div>
+            {%endif%}
+            </div>
+        </div>
+
+        <!-- SCREEN 2 -->
+        <div id="div2" class="quadrant">
+            <div class="card game-view-quadrant rounded-5 border-0 shadow-lg">
+                <h5>{{role.role_name}} INFORMATION FOR ALL WEEKS</h5>
+                <div class="table-cont">
+                    <table class="table-input-screen table-weeks" id="table-weeks" border="1">
+                        <thead>
+                            <tr>
+                                <th>Week Number</th>
+                                <th>Inventory</th>
+                                <th>Backlog</th>
+                                <th >Demand</th>
+                                <th>Incoming Shipment</th>
+                                <th>Outgoing Shipment</th>
+                                <th>Order Placed</th>
+                                <th>Cost</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% if last_weeks %}
+                                {% for week in last_weeks %}
+                                        <tr>
+                                            <td>{{week.number}}</td>
+                                            <td>{{week.inventory}}</td>
+                                            <td>{{week.backlog}}</td>
+                                            <td>{{week.demand}}</td>
+                                            <td>{{week.incoming_shipment}}</td>
+                                            <td>{{week.outgoing_shipment}}</td>
+                                            <td>{{week.order_placed}}</td>
+                                            <td>{{week.cost}}</td>
+                                        </tr>
+                                {% endfor %}
+                                <!-- Showing even the last week if the game is completed -->
+                                {%if completed == True %}
+                                <tr>
+                                    <td>{{current_week_role.number}}</td>
+                                    <td>{{current_week_role.inventory}}</td>
+                                    <td>{{current_week_role.backlog}}</td>
+                                    <td>{{current_week_role.demand}}</td>
+                                    <td>{{current_week_role.incoming_shipment}}</td>
+                                    <td>{{current_week_role.outgoing_shipment}}</td>
+                                    <td>{{current_week_role.order_placed}}</td>
+                                    <td>{{current_week_role.cost}}</td>
+                                </tr>
+                                {%endif%}
+                            {% else %}
+                                <p>There are no weeks</p>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- SCREEN 3 -->
+        <div id="div3" class="quadrant">
+            <div class="card game-view-quadrant rounded-5 border-0 shadow-lg">
+                <!-- Should also display current week -->
+                <h5>STATUS OF OTHER SUPPLY CHAIN MEMBERS - WEEK {{current_week_role.number}}</h5>
+                <div class="order-status">
+                    <p>Once all players have placed an order, you can proceed to the next week.</p>
+                    <table class="status-table" style="text-align: left;">
+                        <thead>
+                            <tr>
+                                {% if role.role_name == 'factory' %}
+                                    {%if game.distributor_present%}
+                                        {%if game.wholesaler_present%}
+                                            <th>Retailer</th>
+                                            <th>Wholesaler</th>
+                                            <th>Distributor</th>
+                                        {%else%}
+                                            <th>Retailer</th>
+                                            <th>Distributor</th>
+                                        {%endif%}
+                                    {%else%}
+                                        {%if game.wholesaler_present%}
+                                            <th>Retailer</th>
+                                            <th>Wholesaler</th>
+                                        {%else%}
+                                            <th>Retailer</th>
+                                        {%endif%}
+                                    {%endif%}
+                                {% elif role.role_name == 'distributor' %}
+                                    {%if game.wholesaler_present%}
+                                        <th>Retailer</th>
+                                        <th>Wholesaler</th>
+                                        <th>Factory</th>
+                                    {%else%}
+                                        <th>Retailer</th>
+                                        <th>Factory</th>
+                                    {%endif%}
+                                    
+                                {% elif role.role_name == 'wholesaler' %}
+                                    {%if game.distributor_present%}
+                                        <th>Retailer</th>
+                                        <th>Distributor</th>
+                                        <th>Factory</th>
+                                    {%else%}
+                                        <th>Retailer</th>
+                                        <th>Factory</th>
+                                    {%endif%}
+                                {% else %}
+                                
+                                    {%if game.distributor_present%}
+                                        {%if game.wholesaler_present%}
+                                            <th>Wholesaler</th>
+                                            <th>Distributor</th>
+                                            <th>Factory</th>
+                                        {%else%}
+                                            <th>Distributor</th>
+                                            <th>Factory</th>
+                                        {%endif%}
+                                    {%else%}
+                                        {%if game.wholesaler_present%}
+                                            <th>Wholesaler</th>
+                                            <th>Factory</th>
+                                        {%else%}
+                                            <th>Factory</th>
+                                        {%endif%}
+                                    {%endif%}
+                                {% endif %}
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr>
+                            {% for i in other_weeks %}
+                                {% if i.order_placed == -1 %}
+                                    <td style="color: red;">Order not placed</td>
+                                {% else %}
+                                    <td style="color: green;">Order placed</td>
+                                {%endif%}
+                            {% endfor %}
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Display this once all orders have been placed -->
+                <!-- <div class="all-orders-placed">
+                    <p>All orders have been placed for week {{current_week_role.number}}. You can now proceed to the next week.</p>
+                    <a href="" type="button" class="btn btn-success">Next Week >></a>
+                </div> -->
+                
+            </div>
+            
+        </div>
+
+        <!-- SCREEN 4 -->
+        <div id="div4" class="quadrant">
+            <div class="card game-view-quadrant rounded-5 border-0 shadow-lg">
+                <h5>INVENTORY AND STATUS PLOTS - {{role.role_name}} </h5>
+                <div class="plot-buttons">
+                    <!-- INVENTORY PLOT -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Inventory" id="plot-btn">
+                      Inventory
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="Inventory" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="Inventory-Plot">Inventory Plot</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="graph">{{ graph1|safe }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DEMAND -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Demand" id="plot-btn">
+                      Demand
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="Demand" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="Demand-Plot">Demand Plot</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="graph">{{ graph2|safe }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INCOMING SHIPMENT PLOT -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Incoming" id="plot-btn">
+                      Inc. Shipment
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="Incoming" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="Incoming-Plot">Incoming Shipment Plot</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="graph">{{ graph3|safe }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OUTGOING SHIPMENT PLOT -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Outgoing" id="plot-btn">
+                      Out. Shipment
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="Outgoing" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="Outgoing-Plot">Ougoing Shipment Plot</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="graph">{{ graph4|safe }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ORDER PLOT -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#Order" id="plot-btn">
+                      Order
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="Order" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="Order-Plot">Order Plot</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="graph">{{ graph5|safe }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PLOT ALL -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#All" id="plot-btn">
+                      Plot All
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="All" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-lg" role="document" >
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="All-Plots">All Plots</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="graph">{{ graph6|safe }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                   
+                </div>
+
+                <h5>SUPPLY CHAIN SETTINGS - {{role.role_name}}</h5>
+                <div class="supply-chain-settings">
+                    <table class="settings-table">
+                        <tr>
+                            <td>Holding cost:</td>
+                            <td id="val">{{game.holding_cost}}</td>
+                        </tr>
+                        <tr>
+                            <td>Backorder cost:</td>
+                            <td id="val">{{game.backlog_cost}}</td>
+                        </tr>
+                        <tr>
+                            <td>Downstream Player:</td>
+                            {%if downstream_role.role_name %}
+                            <td id="val">{{downstream_role.role_name}}</td>
+                        
+                            {%else%}
+                            <td id="val">{{downstream_role}}</td>
+                            {%endif%}
+                        </tr>
+                        <tr>
+                            <td>Upstream Player:</td>
+                            {%if upstream_role.role_name %}
+                            <td id="val">{{upstream_role.role_name}}</td>
+                        
+                            {%else%}
+                            <td id="val">{{upstream_role}}</td>
+                            {%endif%}
+                            <td id="val"></td>
+                        </tr>
+                        <tr>
+                            <td>Shipping Delay:</td>
+                            <td id="val">{{game.info_delay}} weeks</td>
+                        </tr>
+                        <tr>
+                            <td>Information Delay:</td>
+                            <td id="val">{{game.info_delay}} weeks</td>
+                        </tr>
+                    </table>
+                </div>
+           
+            </div>
+        </div>
+    </div>
+    {%else%}
+    <h1 style="text-align: center; padding-top: 50px;">Game not active</h1>
+    {%endif%}      
+
+<script>
+// Shows that there is no plot to display if there is no plots
+var plots = document.getElementsByClassName('graph');
+for (var i = 0; i < plots.length; i++) {
+    let test = plots[i].textContent;
+    if (test == 'False') {
+        plots[i].innerHTML = 'No plot to display';
+    }
+}
+</script>
+
+</body>
+</html>

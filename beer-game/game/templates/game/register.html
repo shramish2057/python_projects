@@ -1,0 +1,107 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.2/css/all.css" crossorigin="anonymous">
+	<link rel="stylesheet" href="{% static 'game/style.css' %}" />
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+	<link rel="stylesheet" href="{% static 'game/style.css' %}" />
+	
+	<title>User Registration</title>
+</head>
+
+<body>
+	<div class="container">
+		<div class="forms-container">
+			<div class="signin-signup">
+				<form method="POST" action="{% url 'game:register' %}" class="sign-form">
+					<h2 class="title"style="padding-bottom: 20px;">Create Account</h2>
+
+		            {% csrf_token %}
+
+		            <div >
+		            	<label class="user-type" style="padding-right: 50px;">
+		            		{{profile_form.is_instructor}} Instructor
+		            	</label>
+		            	<label class="user-type">
+		            		<input type="checkbox" name="is_student" value="Student" form="form-check-input"> Student
+		            	</label>
+		            </div>
+
+		            <div class="input-field">
+		            	<i class="fas fa-user"></i>
+		            	{{form.username}}
+		            </div>
+
+		            <div class="input-field">
+		            	<i class="fas fa-smile"></i>
+		            	{{form.first_name}}
+		            </div>
+
+		            <div class="input-field">
+		            	<i class="fas fa-smile"></i>
+		            	{{form.last_name}}
+		            </div>
+
+		            <div class="input-field">
+		            	<i class="fas fa-envelope"></i>
+		            	{{form.email}}
+		            </div>
+
+		            <div class="input-field">
+		            	<i class="fas fa-lock"></i>
+		            	{{form.password1}}
+		            </div>
+
+		            <div class="input-field">
+		            	<i class="fas fa-lock"></i>
+		            	{{form.password2}}
+		            </div>
+
+		            <!-- Error messages -->
+			       	<div class="errorlist" style="color: red">
+			          	{% for field, error in form.errors.items %}
+			          	{% if field != '__all__' %}{% endif %} 
+			          	<br>
+			          	{{ error | striptags }}
+			          	<br>
+			          	{% endfor %}
+			        </div>
+
+		          	<input type="submit" value="register" class="btn solid" />
+		          	<br>
+		          	<p class="footer-text">Already have an account? <a href="/login">Login here.</a></p>
+		        </form>
+		    </div>
+		</div>
+	</div>
+
+	<!-- Placeholders for input
+	Starting from 3 since 1 and 2 are for the checkboxes -->
+	<script>
+		var form_fields = document.getElementsByTagName('input')
+		form_fields[3].placeholder='Username';
+		form_fields[4].placeholder='First Name';
+		form_fields[5].placeholder='Last Name';
+		form_fields[6].placeholder='Email';
+		form_fields[7].placeholder='Password';
+		form_fields[8].placeholder='Repeat Password';
+
+		for (var field in form_fields) {
+			form_fields[field].className += 'form-control'
+		}
+	</script>
+
+	<!-- Doesn't allow to select both Instructor and Student -->
+	<script>
+		$('input[type=checkbox]').on('change', function (e) {
+	    if ($('input[type=checkbox]:checked').length > 1) {
+	        $(this).prop('checked', false);
+	    }
+	});
+	</script>
+</body>
+</html>

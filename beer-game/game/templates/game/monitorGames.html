@@ -1,0 +1,85 @@
+{% extends 'game/navbar.html' %}
+
+{% block content %}
+
+<!-- Main content -->
+<div class="main-container">
+    <h2>Monitor Games</h2>
+    <p>Here you can monitor all games you have created.<br>
+    <span style="font-size: 14px;"><b>Note: </b>W.C. stands for Week Completed.</span></p>
+
+    <hr>
+
+    <div class="form-container py-2">
+        <div class="card rounded-5 border-0 shadow">
+            <div class="card-body p-5">
+                <!-- MONITORED GAMES -->
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Game ID</th>
+                                    <th>Game<br>Settings</b><br><span style="font-weight: 400;">Delay, Holding Cost,<br> Backorder Cost</span></th>
+                                    <th>Factory<br>Cost</th>
+                                    <th>Distributor<br>Cost</th>
+                                    <th>Wholesaler<br>Cost</th>
+                                    <th>Retailer<br>Cost</th>
+                                    <th>Total<br>Cost</th>
+                                    <th>Graphical<br>Plots</th>
+                                    <!-- <th>Stop/Continue<br>the Game</th> -->
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {% for game_info in games_info %}
+                                    <tr>
+                                        <th scope="row">{{game_info.0.id}}</td>
+                                        <td>{{game_info.0.info_delay}} weeks, {{game_info.0.backlog_cost}}, {{game_info.0.holding_cost}}</td>
+                                        <td>Cost: <b><span id="cost">{{game_info.1}}</span></b><br>W.C.: </td>
+                                        {%if game_info.0.distributor_present%}
+                                            <td>Cost: <b><span id="cost">{{game_info.2}}</span></b><br>W.C.: </td>
+                                            {%if game_info.0.wholesaler_present%}
+                                                <td>Cost: <b><span id="cost">{{game_info.3}}</span></b><br>W.C.: {{game_info.}}</td>
+                                                <td>Cost: <b><span id="cost">{{game_info.4}}</span></b><br>W.C.: </td>
+                                                <td>Cost: <b><span id="cost">{{game_info.5}}</span></b><br>W.C.: </td>
+                                            {%else%}
+                                                <td>n/a</td>
+                                                <td>Cost: <b><span id="cost">{{game_info.3}}</span></b><br>W.C.: </td>
+                                                <td>Cost: <b><span id="cost">{{game_info.4}}</span></b><br>W.C.: </td>
+                                            {%endif%}
+                                        {%else%}
+                                            <td>n/a</td>
+                                            {%if game_info.0.wholesaler_present%}
+                                                <td>Cost: <b><span id="cost">{{game_info.2}}</span></b><br>W.C.: </td>
+                                                <td>Cost: <b><span id="cost">{{game_info.3}}</span></b><br>W.C.: </td>
+                                                <td>Cost: <b><span id="cost">{{game_info.4}}</span></b><br>W.C.: </td>
+                                            {%else%}
+                                                <td>n/a</td>
+                                                <td>Cost: <b><span id="cost">{{game_info.2}}</span></b><br>W.C.: </td>
+                                                <td>Cost: <b><span id="cost">{{game_info.3}}</span></b><br>W.C.: </td>
+                                            {%endif%}
+                                        {%endif%}
+                                        <td>
+                                            <a href="{% url 'game:adminPlots' game_info.0.id %}" ><button class="game-btn">Plots</button></a>
+                                        </td>
+                                        <!-- Not implemented -->
+                                        <!-- <td>
+                                            <button class="game-btn">Freeze</button> 
+                                        </td> -->
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Sets current link as active
+$('#monitor-link').addClass('active');
+</script>
+
+{% endblock %}

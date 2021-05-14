@@ -1,0 +1,39 @@
+{% extends 'game/navbar.html' %}
+
+{% block content %}
+<!-- Main content -->
+<div class="main-container">
+    <h2 style="text-align: center;">Create demand pattern for game {{game.id}}</h2>
+
+    <hr>
+
+    <div class="demand-form form-container py-2 d-flex justify-content-center" style="width:70%; padding:100px;">
+        <div class="card rounded-5 border-0 shadow">
+            <div class="card-body p-5">
+                <p>
+                    Update the new custom demand by pasting comma delimited weekly demand
+                    in the textbox below. You need to provide a demand stream for <b>{{game.nr_rounds}}</b> weeks, each week 
+                    seperated by a comma. <br>
+                    <b>Note:</b> All demand values should be integers and do not include any space or hit enter after the last week 
+                </p>
+
+                <textarea name="demand" class="form-control" form="usrform">5, 4, 2, 3</textarea>
+
+                <form method = "POST" action="{% url 'game:demand' game.id %}" id="usrform">
+                    
+                    {% csrf_token %}
+                    <input class="game-form-btn btn btn-primary btn-block" style="background-color: #6996ff; font-size: 18px; width: 150px;" type="submit" value="Submit">
+                </form>
+
+                <!-- errors specified in the views -->
+                <div class="errorlist" style="color: red">
+                  {% for message in messages %}
+                    <p id="messages">{{message}}</p>
+                  {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

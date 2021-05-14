@@ -1,0 +1,251 @@
+{% extends 'game/navbar.html' %}
+
+{% block content %}
+<!-- Main content -->
+<div class="main-container">
+    <h2>Update Game {{game.id}}</h2>
+    <p>Change the form data and submit to update game settings.</p>
+
+    <hr>
+
+    <div class="create-game-form form-container py-2">
+        <div class="card rounded-5 border-0 shadow">
+            <div class="card-body p-5">
+                {%if game.is_completed == False%}
+
+                <!-- Bootstrap Form -->
+                <form  method = "POST" action="{% url 'game:updateGame' game.id%}" id="usrform">
+
+                    {% csrf_token %}
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Number of weeks</label>
+                                {{form.nr_rounds}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Delay</label>
+                                {{form.info_delay}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Holding Cost</label>
+                                {{form.holding_cost}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Backlog Cost</label>
+                                {{form.backlog_cost}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="checkboxes row">
+                        <div class="col">
+                            <div class="form-outline">
+                                <div class="form-check">
+                                    <label class="form-label">{{form.distributor_present}} Has Distributor </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <div class="form-check">
+                                    <label class="form-label">{{form.wholesaler_present}} Has Wholesaler </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p><b>Important:</b> You can't change already assigned players. You can only add a distributor or wholesaler if not previously assigned.</p>
+                    <div class="row">
+                        
+                        <!-- {{form2}} -->
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Factory</label>
+                                {{form2.factory}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Distributor</label>
+                                {{form2.distributor}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Wholesaler</label>
+                                {{form2.wholesaler}}
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class="form-outline">
+                                <label class="form-label">Retailer</label>
+                                {{form2.retailer}}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div style="max-width: 700px; padding-top: 30px;">
+                                <p>Update the new custom demand by pasting comma delimited weekly demand
+                                    in the textbox below. You need to provide a demand stream for <b>{{rounds_remaining_prev}}</b> weeks, each week 
+                                    seperated by a comma. <br>
+                                    <b>Note:</b> All demand values should be integers and do not include any space or hit enter after the last week.<br>
+                                    <b>Important:</b> If you change the number of rounds then more fields need to be specified.
+                                </p>
+                                <!-- Change this so that it shows demand input by user and not the default one -->
+                                <textarea name="demands" class="form-control" form="usrform">5, 4, 2, 3</textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col" style="padding-top: 30px;">
+                            <div class="form-outline">
+                                <div class="form-check">
+                                    <label class="form-label">{{form.is_active}} Activate Game </label>
+                                </div>
+                            </div>   
+                        </div>
+                    </div>
+
+                    <!-- Error handling -->
+                    <div class="errorlist" style="color: red">
+                        {% for message in messages %}
+                            <p id="messages">{{message}}</p>
+                        {% endfor %}
+                    </div>
+
+                    <!-- errors specified in the views -->
+                    <div class="errorlist" style="color: red">
+                        {% for message in messages %}
+                          <p id="messages">{{message}}</p>
+                        {% endfor %}
+                    </div>
+
+                    <div class="row" style="padding-top: 50px;">
+                        <div class="col">
+                            <a href="/" class="game-form-btn btn btn-primary btn-block" style="background-color: #ff625c; font-size: 18px;"><i class="nav-icons fas fa-ban"></i>Cancel</a>
+                        </div>
+
+                        <div class="col">
+                            <input type="submit" class="game-form-btn btn btn-primary btn-block" style="background-color: #59bd60; font-size: 18px; width: 150px;" value="Update"/>
+                        </div>
+                    </div>
+                </form>
+
+                {%else%}
+                    <h3>Game is completed. Nothing to update!</h3>
+                {%endif%}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// When a player is already selected, it becomes disabled in other selectors
+var $selects = $('select');
+$selects.on('change', function() {
+    var $select = $(this), 
+        $options = $selects.not($select).find('option'),
+        selectedText = $select.children('option:selected').text();
+
+    var $optionsToDisable = $options.filter(function() {
+        return $(this).text() == selectedText;
+    });
+
+    $optionsToDisable.prop('disabled', true);
+});
+
+// Iterating on every option to disable already selected options
+var i = 0;
+$("select > option").each(function() {
+    $selects.eq(i).trigger('change');
+    i++;
+});
+
+// Does initial check whether distributor or wholesaler are present
+var test1 = document.getElementById("id_distributor_present");
+if (test1.checked == false) {
+    document.getElementById('id_distributor').disabled = true;
+}
+
+var test2 = document.getElementById("id_wholesaler_present");
+if (test2.checked == false) {
+    document.getElementById('id_wholesaler').disabled = true;
+}
+
+// Checks whether distributor or wholesaler are selected and disables/enables the selectors
+function check_distributor() {
+    var check1 = document.getElementById("id_distributor_present");
+    var sel1 = document.getElementById('id_distributor');
+    if (check1.checked) {
+        sel1.disabled = false;
+    }
+    else {
+        for(i = 0; i < sel1.options.length; i++){
+            // Resets select value
+            if(sel1.options[i].text == "---------"){
+                sel1.selectedIndex = i;
+            }
+        }
+        sel1.disabled = true;
+    }
+} 
+
+function check_wholesaler() {
+    var check2 = document.getElementById('id_wholesaler_present');
+    var sel2 = document.getElementById('id_wholesaler');
+    if (check2.checked) {
+        sel2.disabled = false;
+    }
+    else {
+        for(i = 0; i < sel2.options.length; i++){
+            // Resets select value
+            if(sel2.options[i].text == "---------"){
+                sel2.selectedIndex = i;
+            }
+        }
+        sel2.disabled = true;
+    }
+}
+
+// document.getElementById('id_retailer').disabled = true;
+// document.getElementById('id_factory').disabled = true;
+
+// // If distributor is already selected, distributor checkbox is disabled
+// $('#id_distributor').change(function(){
+// var selected_option = $(this).find(":selected").text();
+// if (selected_option !== '---------')
+//     $('#id_distributor_present').prop('disabled', true);
+// });
+
+// // If wholesaler is already selected, wholesaler checkbox is disabled
+// $('#id_wholesaler').change(function(){
+// var selected_option = $(this).find(":selected").text();
+// if (selected_option !== '---------')
+//     $('#id_wholesaler_present').prop('disabled', true);
+// });
+
+// // Sets current link as active
+$('#create-link').addClass('active');
+</script>
+</script>
+
+{% endblock %}
+

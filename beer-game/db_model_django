@@ -1,0 +1,69 @@
+The constructed database contains the following entities:
+
+-Django existing entities: 
+
+auth_group, auth_group_permissions, auth_permission, auth_user, 
+auth_user_groupsauth_user_user_permissions, django_admin_log, 
+django_content_type, django_migrations, django_session
+
+-Custom entities (created by our group depending on the UML diagram):
+//the "game" is prepended to each model name due to the name of the app created
+
+game_game, game_gamerole, game_role, game_roleweek, 
+game_userprofile, game_userrole, game_roleweek
+
+Note: The user model was contructed by extending the existing one (auth_user).
+
+
+                                                                
+
+#the existing user model: Django              #the extension to the existing user_model                                                                                                                                                                                      
+                                                                                                                                                                                          
+|----------------------|                      |-------------------------------|                                                                                                                                                                                                                       
+| auth_user (existing) |                      | Userprofile (customized)      |                                                                                                                                                                        
+|--------------------- |                      |-------------------------------|                                                                                                                                                                                                            
+|id: integer           |                      |id: integer                    |                                                                                                                                                                                                                                                              
+|password: string      |                      |user_id: integer(auth_user_id) |                                                                                                                                                                          
+|last_login: datetime  |                      |is_instructor: boolean         |                                                                                                                                                                                                                                                                                                               
+|is_superuser: boolean |                      |===============================                                                                                                                                                                                                                        
+|username: string      |                                                                                                                                                                                              
+|first_name:string     |                                                                                                                                                                                             
+|last_name: string     |                                                                                                                                                                                                                             
+|email: string         |                                                                                                                                                                                                                                             
+|is_staff: boolean     |                                                                                                                                                                                              
+|is_active: boolean    |                                                                                                                                                                                             
+|date_joined: datetime |                                                                                                                                                                                                                                                                                                  
+|=======================                                                                                                                                                                                            
+                                                                                                                                                                                          
+
+|-----------------------------|              |-------------------|                              
+|     Role                    |              | UserRole          |               
+|-----------------------------|              |------------------ |                                   
+|id: integer                  |              |roleid: integer    |                                              
+|roleName: string             |              |userid: integer    |         
+|downstreamPlayer: id(role_id)|              |===================|                                                    
+|upstreamPlayer: id(role_id)  |                                                                                                                
+|=============================|   
+
+
+
+   
+
+
+|------------------------------|                    |------------------------------|              |------------------------------|                                                                                                                                                                                                                                                                                          
+|      Game                    |                    |  Week                        |              |  roleWeek                    |                                                                                                                                                                                                                                                               
+|------------------------------|                    |------------------------------|              |------------------------------|                                                                                                                                                                                                                                                                                                                                                            
+|  id: integer                 |   
+|  nr_rounds: integer          |                    |  id: integer                 |              |  roleid: integer             |                                                                                                                                                                                                                                                                                                                                                                                          
+|  admin_id: integer(userId)   |                    |  number: integer             |              |  weekid: integer             |                                                                                                                                                                                                                                                                                                                                                                                                                                              
+|  distributor_present: boolean|                    |  inventory: integer          |              |==============================|                                                                                                                                                                                                                                                                                                                          
+|  wholesaler_present: boolea  |                    |  backlog: integer            |                                                                                                                                                                                                                                                                                                                                                                                        
+|  holding_cost: integer       |                    |  demand: integer             |                                                                                                                                                                                                                                                                  
+|  backlog_cost: integer       |                    |  incoming_shipment: integer  |              |------------------------------|                                                                                                                                                                                                                                                                          
+|  active: boolean             |                    |  outgoing_shipment: integer  |              |  gameRole                    |                                                                                                                                                                                                                                                                                                                                                 
+|  info_sharing: boolean       |                    |  order_placed: integer       |              |------------------------------|                                                                                                                                                                                                                                                                                                                                                                                
+|  info_delay: integer         |                    |  cost: integer               |              |  roleid: integer             |                                                                                                                                                                                                                                                                                                                                                                                                                                                              
+|  rounds_completed: integer   |                    |==============================|              |  gameid: integer             |                                                                                                                                                                                                                                                                                                                                                                                                                          
+|  is_default_game: boolean    |                                                                  |==============================|                                                                                                                                                        
+|  starting_inventory: integer |                                                                                                                                                                                                                                                                                                                                                               
+|==============================|   
